@@ -40,35 +40,41 @@ const styles = StyleSheet.create({
   },
 });
 
-const { View, Text, Image } = React;
+const { View, ListView, Text, Image } = React;
 export default class TopicComments extends Component {
   static propTypes = {
-    topic: PropTypes.string,
+    comments: PropTypes.array,
+  }
+
+  static defaultProps = {
+    comments: [],
   }
 
   constructor(props) {
     super(props);
-    this.state = { comments: [], loaded: false };
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    this.state = {
+      dataSource: ds.cloneWithRows(this.props.comments),
+    };
   }
 
-  componentWillMount() {
-    this.fetchData(this.props.topic);
+  componentWillReceiveProps(nextProps) {
+    if (this.props.comments === nextProps.comments) {
+      return false;
+    }
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    this.setState({
+      dataSource: ds.cloneWithRows(nextProps.comments),
+    });
   }
 
-  async fetchData(id) {
-    const uri = `https://v2ex.com/api/replies/show.json?topic_id=${id}`;
-    const response = await fetch(uri);
-    const json = await response.json();
-    this.setState({ comments: json, loaded: true });
-  }
-
-  renderComment(comment, i) {
-    const str = ` #${i + 1} · ${comment.member.username} · ${comment.created}`;
+  renderRow(comment, _, i) {
+    const str = ` #${+i + 1} · ${comment.member.username} · ${comment.created}`;
     const avatar = `http:${comment.member.avatar_normal}`;
     return (
       <View key={comment.id} style={styles.comment}>
         <View style={styles.listRow}>
-          <Image style={styles.avatar} source={{uri: avatar}} />
+          <Image style={styles.avatar} source={{ uri: avatar }} />
           <Text style={styles.time}>{str}</Text>
         </View>
         <View>
@@ -79,8 +85,8 @@ export default class TopicComments extends Component {
   }
 
   render() {
-    if (this.state.loaded) {
-      if (this.state.comments.length === 0) {
+    if (this.props.comments) {
+      if (this.props.comments.length === 0) {
         return (
           <View style={styles.container}>
             <View style={styles.header}>
@@ -92,9 +98,15 @@ export default class TopicComments extends Component {
         return (
           <View style={styles.container}>
             <View style={styles.header}>
-              <Text>{`${this.state.comments.length} 回复`}</Text>
+              <Text>{`${this.props.comments.length} 回复`}</Text>
             </View>
-            {this.state.comments.map(this.renderComment)}
+            <View style={styles.container}>
+              <ListView
+                dataSource={this.state.dataSource}
+                renderRow={this.renderRow.bind(this)}
+                pageSize={20}
+              />
+            </View>
           </View>
         );
       }
@@ -102,5 +114,4 @@ export default class TopicComments extends Component {
       return null;
     }
   }
-
 }

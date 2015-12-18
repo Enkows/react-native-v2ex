@@ -1,7 +1,5 @@
 import React, { Component, PropTypes, StyleSheet, PixelRatio } from 'react-native';
 
-import TopicDetail from './detail';
-
 
 const styles = StyleSheet.create({
   container: {
@@ -46,11 +44,8 @@ const { View, ListView, Text, TouchableHighlight, Image } = React;
 export default class TopicList extends Component {
   static displayName = 'TopicList'
   static propTypes = {
-    navigator: PropTypes.object,
     topics: PropTypes.object,
-    fetchTopic: PropTypes.func,
-    fetchTopics: PropTypes.func,
-    fetchComments: PropTypes.func,
+    onRowTouched: PropTypes.func,
   }
 
   constructor(props) {
@@ -61,45 +56,24 @@ export default class TopicList extends Component {
     };
   }
 
-  componentWillMount() {}
-
-  componentDidMount() {
-    this.props.fetchTopics();
-  }
-
   componentWillReceiveProps(nextProps) {
+    if (this.props.topics === nextProps.topics) {
+      return false;
+    }
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     this.setState({
       dataSource: ds.cloneWithRows(nextProps.topics.data),
     });
   }
 
-  componentWillUnmount() {}
-
-  onSelectTopic(data) {
-    // data = {
-    //   uri: '/t/234251#reply3',
-    //   title: '[创新工场｝ python 后端实习生',
-    //   time: '1小时31分钟前',
-    //   node: { name: '酷工作', uri: '/go/jobs' },
-    //   author: {
-    //     avatar: 'http://cdn.v2ex.co/avatar/2636/74f3/31313_large.png?m=1386751127',
-    //     name: 'thesecretapp',
-    //     uri: 'https://v2ex.com/member/thesecretapp',
-    //   },
-    // };
-
-    this.props.navigator.push({
-      component: TopicDetail,
-      title: '话题详情',
-      passProps: { topic: data },
-    });
+  onRowTouched(data) {
+    this.props.onRowTouched(data);
   }
 
   renderRow(data) {
     const str = `[${data.node.name}] · ${data.author.name} · ${data.time}`;
     return (
-      <TouchableHighlight onPress={() => this.onSelectTopic(data)}>
+      <TouchableHighlight onPress={() => this.onRowTouched(data)}>
         <View style={styles.listRow}>
           <Image style={styles.avatar} source={{ uri: data.author.avatar }} />
           <View style={styles.textWrapper}>

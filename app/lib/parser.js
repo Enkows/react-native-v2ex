@@ -89,8 +89,7 @@ export function getTopicDetail(html) {
   });
 
   return {
+    addition,
     content: topicContent,
-    addition: addition,
-    comments: [],
   };
 }
