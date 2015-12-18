@@ -55,30 +55,26 @@ export default class TopicList extends Component {
 
   constructor(props) {
     super(props);
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     this.state = {
       dataSource: ds.cloneWithRows(this.props.topics.data),
     };
   }
 
-  componentWillMount() {
-    console.log('TopicList will mount');
-  }
+  componentWillMount() {}
 
   componentDidMount() {
     this.props.fetchTopics();
   }
 
   componentWillReceiveProps(nextProps) {
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     this.setState({
       dataSource: ds.cloneWithRows(nextProps.topics.data),
     });
   }
 
-  componentWillUnmount() {
-    console.log('TopicList unmount');
-  }
+  componentWillUnmount() {}
 
   onSelectTopic(data) {
     // data = {
@@ -105,7 +101,7 @@ export default class TopicList extends Component {
     return (
       <TouchableHighlight onPress={() => this.onSelectTopic(data)}>
         <View style={styles.listRow}>
-          <Image style={styles.avatar} source={{uri: data.author.avatar}} />
+          <Image style={styles.avatar} source={{ uri: data.author.avatar }} />
           <View style={styles.textWrapper}>
             <Text style={styles.title}>{data.title}</Text>
             <Text style={styles.time}>{str}</Text>
@@ -121,7 +117,8 @@ export default class TopicList extends Component {
         <ListView
           dataSource={this.state.dataSource}
           renderRow={this.renderRow.bind(this)}
-          pageSize={20} />
+          pageSize={20}
+        />
       </View>
     );
   }

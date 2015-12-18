@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux/native';
+import CodePush from 'react-native-code-push';
 
 import * as actionCreator from '../actions/index.js';
 import Navigator from '../components/index.js';
@@ -9,10 +10,13 @@ import Navigator from '../components/index.js';
 const stateToProps = state => state;
 const dispatchToProps = dispatch => bindActionCreators(actionCreator, dispatch);
 
-@connect(stateToProps, dispatchToProps)
 class v2exApp extends Component {
   static propTypes = {
     reduxState: PropTypes.object,
+  }
+
+  componentDidMount() {
+    CodePush.sync();
   }
 
   render() {
@@ -23,4 +27,4 @@ class v2exApp extends Component {
 }
 
 
-export default v2exApp;
+export default connect(stateToProps, dispatchToProps)(v2exApp);
