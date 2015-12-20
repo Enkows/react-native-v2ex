@@ -3,8 +3,6 @@ import React, { Component, PropTypes, StyleSheet, PixelRatio } from 'react-nativ
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1 / PixelRatio.get(),
     borderColor: '#E2E2E2',
@@ -46,7 +44,8 @@ const { View, ListView, Text, TouchableHighlight, Image } = React;
 export default class TopicList extends Component {
   static displayName = 'TopicList'
   static propTypes = {
-    topics: PropTypes.object,
+    storage: PropTypes.object,
+    topicListView: PropTypes.array,
     onRowTouched: PropTypes.func,
   }
 
@@ -54,26 +53,27 @@ export default class TopicList extends Component {
     super(props);
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     this.state = {
-      dataSource: ds.cloneWithRows(this.props.topics.data),
+      dataSource: ds.cloneWithRows(this.props.topicListView),
     };
   }
 
   componentWillReceiveProps(nextProps) {
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     this.setState({
-      dataSource: ds.cloneWithRows(nextProps.topics.data),
+      dataSource: ds.cloneWithRows(nextProps.topicListView),
     });
   }
 
   shouldComponentUpdate(nextProps) {
-    return this.props.topics !== nextProps.topics;
+    return this.props.topicListView !== nextProps.topicListView;
   }
 
   onRowTouched(data) {
     this.props.onRowTouched(data);
   }
 
-  renderRow(data) {
+  renderRow(id) {
+    const data = this.props.storage[id];
     const str = `[${data.node.name}] · ${data.author.name} · ${data.time}`;
     return (
       <TouchableHighlight onPress={() => this.onRowTouched(data)}>

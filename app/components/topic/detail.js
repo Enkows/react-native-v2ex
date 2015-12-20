@@ -1,4 +1,4 @@
-import React, { Component, PropTypes, StyleSheet, PixelRatio } from 'react-native';
+import React, { Component, PropTypes, StyleSheet, PixelRatio, ActivityIndicatorIOS } from 'react-native';
 
 import HTMLView from '../HTMLView/index';
 import CommentView from './comments';
@@ -6,8 +6,6 @@ import CommentView from './comments';
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1 / PixelRatio.get(),
     borderColor: '#E2E2E2',
@@ -47,7 +45,8 @@ const { View, Text, Image, InteractionManager } = React;
 export default class TopicDetail extends Component {
   static displayName = 'TopicDetail'
   static propTypes = {
-    topic: PropTypes.object,
+    topicDetailView: PropTypes.string,
+    storage: PropTypes.object,
   }
 
   constructor(props) {
@@ -56,14 +55,21 @@ export default class TopicDetail extends Component {
   }
 
   componentDidMount() {
-    console.time('a');
     InteractionManager.runAfterInteractions(() => {
-      console.timeEnd('a');
       this.setState({ renderPlaceholderOnly: false });
     });
   }
 
-  renderContent(topic) {
+  renderContent() {
+    const topic = this.props.storage[this.props.topicDetailView];
+    if (this.state.renderPlaceholderOnly || !topic.loaded) {
+      return (
+        <View style={{ height: 100, justifyContent: 'center' }}>
+          <ActivityIndicatorIOS />
+        </View>
+      );
+    }
+
     const result = [];
     if (topic.content) {
       result.push(
@@ -86,25 +92,30 @@ export default class TopicDetail extends Component {
     return result;
   }
 
-  render() {
-    if (this.state.renderPlaceholderOnly) {
+  renderComments() {
+    const topic = this.props.storage[this.props.topicDetailView];
+    if (this.state.renderPlaceholderOnly || !topic.loaded) {
       return null;
     }
+    return (
+      <CommentView comments={topic.comments} />
+    );
+  }
 
-    const str = `${this.props.topic.author.name} · ${this.props.topic.time}`;
+  render() {
+    const topic = this.props.storage[this.props.topicDetailView];
+    const str = `${topic.author.name} · ${topic.time}`;
     return (
       <View style={styles.container}>
-        <View>
-          <View style={styles.header}>
-            <Text style={[styles.textWrapper, styles.title]}>{this.props.topic.title}</Text>
-            <View style={styles.listRow}>
-              <Image style={styles.avatar} source={{ uri: this.props.topic.author.avatar }} />
-              <Text style={styles.time}>{str}</Text>
-            </View>
+        <View style={styles.header}>
+          <Text style={[styles.textWrapper, styles.title]}>{topic.title}</Text>
+          <View style={styles.listRow}>
+            <Image style={styles.avatar} source={{ uri: topic.author.avatar }} />
+            <Text style={styles.time}>{str}</Text>
           </View>
-          {this.renderContent(this.props.topic)}
         </View>
-        <CommentView comments={this.props.topic.comments} />
+        {this.renderContent()}
+        {this.renderComments()}
       </View>
     );
   }

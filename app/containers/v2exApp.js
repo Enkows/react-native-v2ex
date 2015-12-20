@@ -1,4 +1,4 @@
-import React, { Component, PropTypes, StyleSheet, PixelRatio, Navigator, TouchableOpacity, Text, ScrollView } from 'react-native';
+import React, { PixelRatio, Navigator, TouchableOpacity, Text, ScrollView } from 'react-native';
 import { connect } from 'react-redux/native';
 
 import * as actionCreator from '../actions/index';
@@ -6,17 +6,8 @@ import TopicList from '../components/topic/list';
 import TopicDetail from '../components/topic/detail';
 
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F6F6F6',
-  },
-  buttonText: {
-    fontSize: 17,
-    fontWeight: '500',
-  },
+const styles = React.StyleSheet.create({
   navBar: {
-    flex: 1,
     backgroundColor: '#F6F6F6',
     borderBottomWidth: 1 / PixelRatio.get(),
     borderColor: '#B2B2B2',
@@ -36,11 +27,12 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   navBarButtonText: {
+    fontSize: 16,
     color: '#5890ff',
   },
   scene: {
-    flex: 1,
     marginTop: 63,
+    flex: 1,
     backgroundColor: '#F6F6F6',
   },
 });
@@ -66,25 +58,27 @@ const CustomSceneConfig = Object.assign({}, FloatFromRight, {
   },
 });
 
-class v2exApp extends Component {
+class v2exApp extends React.Component {
   static propTypes = {
-    dispatch: PropTypes.func,
-  }
-
-  constructor(props) {
-    super(props);
-    this.onTopicListRowTouched = this.onTopicListRowTouched.bind(this);
+    dispatch: React.PropTypes.func,
+    storage: React.PropTypes.object,
   }
 
   componentDidMount() {
+    this.fetchTopicList();
+  }
+
+  fetchTopicList() {
     this.props.dispatch(
       actionCreator.fetchTopicList()
     );
   }
 
-  onTopicListRowTouched(data) {
-    this.props.dispatch(actionCreator.fetchTopicDetail(data));
-
+  fetchTopicDetail(data) {
+    const now = new Date();
+    const topicLoaded = this.props.storage[data.id].loaded;
+    if (!topicLoaded || (now - topicLoaded > 60 * 5 * 1000)) this.props.dispatch(actionCreator.fetchTopicDetail(data));
+    this.props.dispatch(actionCreator.fetchTopicComments(data));
     this.refs.nav.push({
       component: TopicDetail,
       title: titles.TopicDetail,
@@ -151,7 +145,6 @@ class v2exApp extends Component {
     };
     return (
       <ScrollView
-        style={styles.container}
         onRefreshStart={endRefreshing => {
           setTimeout(endRefreshing, 500);
         }}
@@ -169,7 +162,7 @@ class v2exApp extends Component {
           component: TopicList,
           title: titles.TopicList,
           passProps: {
-            onRowTouched: this.onTopicListRowTouched,
+            onRowTouched: this.fetchTopicDetail.bind(this),
           },
         }}
         renderScene={this.renderScene.bind(this)}

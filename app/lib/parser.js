@@ -1,4 +1,4 @@
-import cheerio from 'cheerio';
+import cheerio from './cheerio';
 
 
 const replaceHtmlEntities = (function() {
@@ -11,22 +11,22 @@ const replaceHtmlEntities = (function() {
     gt: '>',
   };
   return function(s) {
-    return ( s.replace(translateRegex, function(match, entity) {
+    return (s.replace(translateRegex, function (match, entity) {
       return translate[entity];
-    }) );
+    }));
   };
 })();
 
 const replaceLinksAndImages = function(elem) {
   elem.find('a, img').each((i, target) => {
     switch (target.name) {
-    case 'img':
-      cheerio(target).replaceWith(`[img=${target.attribs.src}]`);
-      break;
-    case 'a':
-      cheerio(target).replaceWith(`[url=${target.attribs.href}]`);
-      break;
-    default:
+      case 'img':
+        cheerio(target).replaceWith(`[img=${target.attribs.src}]`);
+        break;
+      case 'a':
+        cheerio(target).replaceWith(`[url=${target.attribs.href}]`);
+        break;
+      default:
     }
   });
   return elem;
@@ -34,7 +34,7 @@ const replaceLinksAndImages = function(elem) {
 
 export function getTopicList(html) {
   const topics = [];
-  const $ = cheerio.load(html, {decodeEntities: false});
+  const $ = cheerio.load(html, { decodeEntities: false });
   $('.cell.item').each((i, elem) => {
     const ctx = $(elem);
 
@@ -71,7 +71,7 @@ export function getTopicList(html) {
 
 
 export function getTopicDetail(html) {
-  const $ = cheerio.load(html, {decodeEntities: false});
+  const $ = cheerio.load(html, { decodeEntities: false });
 
   const topicContent = replaceHtmlEntities(
     replaceLinksAndImages($('.cell .topic_content')).text()
