@@ -5,6 +5,13 @@ import CommentView from './comments';
 
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1 / PixelRatio.get(),
+    borderColor: '#E2E2E2',
+  },
   header: {
     flex: 1,
     padding: 10,
@@ -36,11 +43,24 @@ const styles = StyleSheet.create({
   },
 });
 
-const { View, Text, ScrollView, Image } = React;
+const { View, Text, Image, InteractionManager } = React;
 export default class TopicDetail extends Component {
   static displayName = 'TopicDetail'
   static propTypes = {
     topic: PropTypes.object,
+  }
+
+  constructor(props) {
+    super(props);
+    this.state = { renderPlaceholderOnly: true };
+  }
+
+  componentDidMount() {
+    console.time('a');
+    InteractionManager.runAfterInteractions(() => {
+      console.timeEnd('a');
+      this.setState({ renderPlaceholderOnly: false });
+    });
   }
 
   renderContent(topic) {
@@ -67,9 +87,13 @@ export default class TopicDetail extends Component {
   }
 
   render() {
+    if (this.state.renderPlaceholderOnly) {
+      return null;
+    }
+
     const str = `${this.props.topic.author.name} · ${this.props.topic.time}`;
     return (
-      <ScrollView>
+      <View style={styles.container}>
         <View>
           <View style={styles.header}>
             <Text style={[styles.textWrapper, styles.title]}>{this.props.topic.title}</Text>
@@ -81,7 +105,7 @@ export default class TopicDetail extends Component {
           {this.renderContent(this.props.topic)}
         </View>
         <CommentView comments={this.props.topic.comments} />
-      </ScrollView>
+      </View>
     );
   }
 }

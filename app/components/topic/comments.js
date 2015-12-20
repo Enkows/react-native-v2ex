@@ -68,6 +68,10 @@ export default class TopicComments extends Component {
     });
   }
 
+  shouldComponentUpdate(nextProps) {
+    return this.props.comments !== nextProps.comments;
+  }
+
   renderRow(comment, _, i) {
     const str = ` #${+i + 1} · ${comment.member.username} · ${comment.created}`;
     const avatar = `http:${comment.member.avatar_normal}`;

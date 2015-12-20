@@ -55,8 +55,9 @@ export default class HTMLView extends Component {
             key={`IMAGE_${index}`}
             resizeMode="contain"
             style={styles.image}
-            source={{uri: src}}
-            indicator={ProgressBar} />
+            source={{ uri: src }}
+            indicator={ProgressBar}
+          />
         );
       }
     });

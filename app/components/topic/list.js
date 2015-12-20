@@ -5,12 +5,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#F6F6F6',
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1 / PixelRatio.get(),
+    borderColor: '#E2E2E2',
   },
   listRow: {
-    backgroundColor: 'white',
     flexDirection: 'row',
     padding: 10,
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1 / PixelRatio.get(),
     borderColor: '#E2E2E2',
   },
@@ -57,13 +59,14 @@ export default class TopicList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.topics === nextProps.topics) {
-      return false;
-    }
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     this.setState({
       dataSource: ds.cloneWithRows(nextProps.topics.data),
     });
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return this.props.topics !== nextProps.topics;
   }
 
   onRowTouched(data) {

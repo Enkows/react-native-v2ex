@@ -9,7 +9,7 @@ import TopicDetail from '../components/topic/detail';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F6F6F6',
   },
   buttonText: {
     fontSize: 17,
@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
   },
   navBar: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#F6F6F6',
     borderBottomWidth: 1 / PixelRatio.get(),
     borderColor: '#B2B2B2',
   },
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
   },
   navBarTitleText: {
     color: '#222222',
-    fontWeight: '500',
+    fontWeight: '700',
   },
   navBarLeftButton: {
     paddingLeft: 10,
@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
   },
   scene: {
     flex: 1,
-    marginTop: 64,
-    backgroundColor: '#FFFFFF',
+    marginTop: 63,
+    backgroundColor: '#F6F6F6',
   },
 });
 
@@ -55,12 +55,12 @@ const FloatFromRight = Navigator.SceneConfigs.FloatFromRight;
 
 const CustomLeftToRightGesture = Object.assign({}, FloatFromRight.gestures.pop, {
   snapVelocity: 8,
-  edgeHitWidth: SCREEN_WIDTH,
+  edgeHitWidth: SCREEN_WIDTH / 2,
 });
 
 const CustomSceneConfig = Object.assign({}, FloatFromRight, {
   springTension: 200,
-  springFriction: 15,
+  springFriction: 20,
   gestures: {
     pop: CustomLeftToRightGesture,
   },
@@ -91,39 +91,38 @@ class v2exApp extends Component {
     });
   }
 
+  renderRightButton(route, navigator) {
+    const newRoute = {
+      ...route,
+      key: Math.ceil(Math.random() * 1000),
+    };
+    return (
+      <TouchableOpacity
+        onPress={() => navigator.push(newRoute)}
+        style={styles.navBarRightButton}
+      >
+        <Text style={[styles.navBarText, styles.navBarButtonText]}>
+          Right
+        </Text>
+      </TouchableOpacity>
+    );
+  }
+
+  renderLeftButton(route, navigator, index) {
+    if (index === 0) return null;
+    return (
+      <TouchableOpacity
+        onPress={() => navigator.pop()}
+        style={styles.navBarLeftButton}
+      >
+        <Text style={[styles.navBarText, styles.navBarButtonText]}>
+          {'返回'}
+        </Text>
+      </TouchableOpacity>
+    );
+  }
+
   renderNavigationBar() {
-    const LeftButton = (route, navigator, index) => {
-      if (index === 0) return null;
-      return (
-        <TouchableOpacity
-          onPress={() => navigator.pop()}
-          style={styles.navBarLeftButton}
-        >
-          <Text style={[styles.navBarText, styles.navBarButtonText]}>
-            {'返回'}
-          </Text>
-        </TouchableOpacity>
-      );
-    };
-
-    // const RightButton = () => {};
-    const RightButton = (route, navigator) => {
-      const newRoute = {
-        ...route,
-        key: Math.ceil(Math.random() * 1000),
-      };
-      return (
-        <TouchableOpacity
-          onPress={() => navigator.push(newRoute)}
-          style={styles.navBarRightButton}
-        >
-          <Text style={[styles.navBarText, styles.navBarButtonText]}>
-            Right
-          </Text>
-        </TouchableOpacity>
-      );
-    };
-
     const Title = (route) => {
       return (
         <Text style={[styles.navBarText, styles.navBarTitleText]}>
@@ -134,21 +133,30 @@ class v2exApp extends Component {
 
     return (
       <Navigator.NavigationBar
-        routeMapper={{ LeftButton, RightButton, Title }}
         style={styles.navBar}
+        routeMapper={{
+          Title,
+          LeftButton: this.renderLeftButton,
+          RightButton: this.renderRightButton,
+        }}
       />
     );
   }
 
-  renderScene(route/* , navigator*/) {
+  renderScene(route, navigator) {
     const RouteHandler = route.component;
     const passProps = {
       ...this.props,
       ...route.passProps,
     };
     return (
-      <ScrollView style={styles.container}>
-        <RouteHandler {...passProps} />
+      <ScrollView
+        style={styles.container}
+        onRefreshStart={endRefreshing => {
+          setTimeout(endRefreshing, 500);
+        }}
+      >
+        <RouteHandler navigator={navigator} {...passProps} />
       </ScrollView>
     );
   }
