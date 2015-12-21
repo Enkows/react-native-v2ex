@@ -32,6 +32,3 @@ local.properties
 #
 node_modules/
 npm-debug.log
-
-ios/main.jsbundle
-ios/v2ex/info.plist

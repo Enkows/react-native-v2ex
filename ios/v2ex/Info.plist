@@ -19,9 +19,9 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>11</string>
+	<string>13</string>
 	<key>CodePushDeploymentKey</key>
-	<string>code-push-deployment-key</string>
+	<string>cMUE57EbfHkSPvpQVYNLy2nWjYUONJuADypSl</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
